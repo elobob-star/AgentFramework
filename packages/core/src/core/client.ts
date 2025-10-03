@@ -507,11 +507,11 @@ export class GeminiClient {
     const controller = new AbortController();
     const linkedSignal = AbortSignal.any([signal, controller.signal]);
 
-    const loopDetected = await this.loopDetector.turnStarted(signal);
-    if (loopDetected) {
-      yield { type: GeminiEventType.LoopDetected };
-      return turn;
-    }
+    // const loopDetected = await this.loopDetector.turnStarted(signal);
+    // if (loopDetected) {
+    //   yield { type: GeminiEventType.LoopDetected };
+    //   return turn;
+    // }
 
     const routingContext: RoutingContext = {
       history: this.getChat().getHistory(/*curated=*/ true),
@@ -534,11 +534,11 @@ export class GeminiClient {
 
     const resultStream = turn.run(modelToUse, request, linkedSignal);
     for await (const event of resultStream) {
-      if (this.loopDetector.addAndCheck(event)) {
-        yield { type: GeminiEventType.LoopDetected };
-        controller.abort();
-        return turn;
-      }
+      // if (this.loopDetector.addAndCheck(event)) {
+      //   yield { type: GeminiEventType.LoopDetected };
+      //   controller.abort();
+      //   return turn;
+      // }
       yield event;
       if (event.type === GeminiEventType.Error) {
         return turn;
