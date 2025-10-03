@@ -26,6 +26,7 @@ export class TestMcpServer {
   }
 
   async start(): Promise<number> {
+    console.log('[DEBUG] TestMcpServer start() method called.');
     const app = express();
     app.use(express.json());
     const mcpServer = new McpServer({
@@ -41,6 +42,7 @@ export class TestMcpServer {
     mcpServer.connect(transport);
 
     app.post('/mcp', async (req, res) => {
+      console.log('[DEBUG] TestMcpServer received request:', req.body);
       this.requests.push(req.body);
       await transport.handleRequest(req, res, req.body);
     });
@@ -49,6 +51,9 @@ export class TestMcpServer {
       this.server = app.listen(0, () => {
         const address = this.server!.address();
         if (address && typeof address !== 'string') {
+          console.log(
+            `[DEBUG] TestMcpServer listening on port: ${address.port}`,
+          );
           resolve(address.port);
         } else {
           reject(new Error('Could not determine server port.'));
@@ -135,6 +140,17 @@ export class TestMcpServer {
       async () => ({
         content: [{ type: 'text', text: 'Shell command executed.' }],
       }),
+    );
+
+    console.log(
+      '[DEBUG] Registered tools with McpServer:',
+      Object.keys(
+        (
+          mcpServer as McpServer & {
+            _registeredTools: Map<string, unknown>;
+          }
+        )._registeredTools,
+      ),
     );
   }
 }

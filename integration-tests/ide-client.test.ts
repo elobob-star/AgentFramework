@@ -24,28 +24,36 @@ describe('IDE client', () => {
   });
 
   it('should trigger openDiff when editing a file in IDE mode', async () => {
-    // 1. Setup the server
+    // The TestRig spawns the Gemini CLI in a separate child process.
+    // Therefore, we cannot spy on the IdeClient directly in this test process.
+    // Instead, we spy on the mock server to verify that it receives the
+    // openDiff request from the CLI process.
     server = new TestMcpServer();
     const port = await server.start();
+    console.log(`[DEBUG] TestMcpServer started on port: ${port}`);
 
     // 2. Configure the Environment by setting all necessary env vars.
     process.env['GEMINI_CLI_IDE_SERVER_PORT'] = String(port);
     process.env['TERM_PROGRAM'] = 'vscode';
+    console.log(
+      `[DEBUG] Set env vars: GEMINI_CLI_IDE_SERVER_PORT=${process.env['GEMINI_CLI_IDE_SERVER_PORT']}, TERM_PROGRAM=${process.env['TERM_PROGRAM']}`,
+    );
 
     // 3. Set up the Workspace.
     rig = new TestRig();
     rig.setup('ide-open-diff-test');
     process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'] = rig.testDir!;
+    rig.createFile('test.txt', 'original content');
 
     // 4. Run the Action.
-    await rig.run(
-      "create a file named 'test.txt' and add 'new content' as content",
-    );
+    // Use a prompt that edits the existing file.
+    console.log('[DEBUG] Calling rig.run...');
+    const prompt =
+      "in the file 'test.txt', please replace 'original' with 'new'";
+    await rig.run({ prompt, env: process.env });
+    console.log('[DEBUG] rig.run completed.');
 
-    // The TestRig spawns the Gemini CLI in a separate child process.
-    // Therefore, we cannot spy on the IdeClient directly in this test process.
-    // Instead, we spy on the mock server to verify that it receives the
-    // openDiff request from the CLI process.
+    // Assert that the spy was called.
     expect(server.getOpenDiffSpy()).toHaveBeenCalled();
   });
 
