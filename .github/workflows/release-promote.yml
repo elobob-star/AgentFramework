@@ -195,6 +195,15 @@ jobs:
         working-directory: './release'
         run: 'npm ci'
 
+      - name: 'Build Release'
+        id: 'build'
+        uses: './.github/actions/build-release'
+        with:
+          release-version: '${{ needs.calculate-versions.outputs.PREVIEW_VERSION }}'
+          release-tag: 'v${{ needs.calculate-versions.outputs.PREVIEW_VERSION }}'
+          dry-run: '${{ github.event.inputs.dry_run }}'
+          working-directory: './release'
+
       - name: 'Publish Release'
         uses: './.github/actions/publish-release'
         with:
@@ -207,8 +216,14 @@ jobs:
           dry-run: '${{ github.event.inputs.dry_run }}'
           previous-tag: '${{ needs.calculate-versions.outputs.PREVIOUS_PREVIEW_TAG }}'
           working-directory: './release'
+          branch-name: '${{ steps.build.outputs.branch-name }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           force-skip-tests: '${{ github.event.inputs.force_skip_tests }}'
+          google-cloud-project: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp-wif-provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          service-account-email: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          eval-gemini-api-key: '${{ secrets.EVAL_GEMINI_API_KEY }}'
+          eval-gcs-bucket: '${{ vars.EVAL_GCS_BUCKET }}'
 
       - name: 'Create Issue on Failure'
         if: '${{ failure() && github.event.inputs.dry_run == false }}'
@@ -253,6 +268,15 @@ jobs:
         working-directory: './release'
         run: 'npm ci'
 
+      - name: 'Build Release'
+        id: 'build'
+        uses: './.github/actions/build-release'
+        with:
+          release-version: '${{ needs.calculate-versions.outputs.STABLE_VERSION }}'
+          release-tag: 'v${{ needs.calculate-versions.outputs.STABLE_VERSION }}'
+          dry-run: '${{ github.event.inputs.dry_run }}'
+          working-directory: './release'
+
       - name: 'Publish Release'
         uses: './.github/actions/publish-release'
         with:
@@ -265,8 +289,14 @@ jobs:
           dry-run: '${{ github.event.inputs.dry_run }}'
           previous-tag: '${{ needs.calculate-versions.outputs.PREVIOUS_STABLE_TAG }}'
           working-directory: './release'
+          branch-name: '${{ steps.build.outputs.branch-name }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           force-skip-tests: '${{ github.event.inputs.force_skip_tests }}'
+          google-cloud-project: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp-wif-provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          service-account-email: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          eval-gemini-api-key: '${{ secrets.EVAL_GEMINI_API_KEY }}'
+          eval-gcs-bucket: '${{ vars.EVAL_GCS_BUCKET }}'
 
       - name: 'Create Issue on Failure'
         if: '${{ failure() && github.event.inputs.dry_run == false }}'
