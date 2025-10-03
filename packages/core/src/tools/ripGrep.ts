@@ -425,23 +425,26 @@ export class RipGrepTool extends BaseDeclarativeTool<
     super(
       RipGrepTool.Name,
       'SearchText',
-      'Searches for a regular expression pattern within the content of files in a specified directory (or current working directory). Can filter files by a glob pattern. Returns the lines containing matches, along with their file paths and line numbers. Total results limited to 20,000 matches like VSCode.',
+      'Searches file contents for a pattern. Use this tool to find references, imports, or definitions to locate relevant files *before* reading them in their entirety. Returns matching lines with file paths and line numbers. Results are truncated if too large.',
       Kind.Search,
       {
         properties: {
           pattern: {
+            // Emphasize literal strings for precise reference finding.
             description:
-              "The regular expression (regex) pattern to search for within file contents (e.g., 'function\\s+myFunction', 'import\\s+\\{.*\\}\\s+from\\s+.*').",
+              "The exact string or regular expression (regex) to search for. Prefer simple, literal strings for exact matches (e.g., 'export class User'). Use regex only when necessary for flexible matching.",
             type: 'string',
           },
           path: {
+            // Emphasize narrowing scope.
             description:
-              'Optional: The absolute path to the directory to search within. If omitted, searches the current working directory.',
+              'Optional: The absolute path to a specific directory to narrow the search scope. Defaults to the current working directory.',
             type: 'string',
           },
           include: {
+            // Emphasize precision.
             description:
-              "Optional: A glob pattern to filter which files are searched (e.g., '*.js', '*.{ts,tsx}', 'src/**'). If omitted, searches all files (respecting potential global ignores).",
+              "Optional: A glob pattern to only search specific file types or patterns (e.g., '*.ts', 'src/controllers/**'). Use this to reduce noise in results.",
             type: 'string',
           },
         },

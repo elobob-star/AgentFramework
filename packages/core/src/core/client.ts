@@ -190,7 +190,9 @@ export class GeminiClient {
 
   async setTools(): Promise<void> {
     const toolRegistry = this.config.getToolRegistry();
-    const toolDeclarations = toolRegistry.getFunctionDeclarations();
+    const toolDeclarations = toolRegistry
+      .getFunctionDeclarations()
+      .filter((tool) => tool.name !== 'read_many_files');
     const tools: Tool[] = [{ functionDeclarations: toolDeclarations }];
     this.getChat().setTools(tools);
   }
@@ -224,7 +226,9 @@ export class GeminiClient {
     const envParts = await getEnvironmentContext(this.config);
 
     const toolRegistry = this.config.getToolRegistry();
-    const toolDeclarations = toolRegistry.getFunctionDeclarations();
+    const toolDeclarations = toolRegistry
+      .getFunctionDeclarations()
+      .filter((tool) => tool.name !== 'read_many_files');
     const tools: Tool[] = [{ functionDeclarations: toolDeclarations }];
 
     const history: Content[] = [
@@ -240,7 +244,7 @@ export class GeminiClient {
     ];
     try {
       const userMemory = this.config.getUserMemory();
-      const systemInstruction = getCoreSystemPrompt(this.config, userMemory);
+      const systemInstruction = getCoreSystemPrompt(userMemory);
       const model = this.config.getModel();
 
       const config: GenerateContentConfig = { ...this.generateContentConfig };
@@ -594,7 +598,7 @@ export class GeminiClient {
 
     try {
       const userMemory = this.config.getUserMemory();
-      const systemInstruction = getCoreSystemPrompt(this.config, userMemory);
+      const systemInstruction = getCoreSystemPrompt(userMemory);
 
       const requestConfig: GenerateContentConfig = {
         abortSignal,

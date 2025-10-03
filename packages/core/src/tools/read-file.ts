@@ -141,7 +141,11 @@ export class ReadFileTool extends BaseDeclarativeTool<
     super(
       ReadFileTool.Name,
       'ReadFile',
-      `Reads and returns the content of a specified file. If the file is large, the content will be truncated. The tool's response will clearly indicate if truncation has occurred and will provide details on how to read more of the file using the 'offset' and 'limit' parameters. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), and PDF files. For text files, it can read specific line ranges.`,
+      `Reads and returns the content of a file. Supports text, images (PNG, JPG, GIF, WEBP, SVG, BMP), and PDFs.
+
+Features:
+1. **Large Files:** Automatically truncates large files. The response guides you on using 'offset' and 'limit' to paginate.
+2. **Parallelism:** To read multiple files efficiently, issue multiple separate calls to this tool in a single turn. Do not read files sequentially if you know the paths ahead of time.`,
       Kind.Read,
       {
         properties: {

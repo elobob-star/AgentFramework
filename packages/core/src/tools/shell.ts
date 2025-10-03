@@ -301,24 +301,18 @@ export class ShellToolInvocation extends BaseToolInvocation<
 }
 
 function getShellToolDescription(): string {
-  const returnedInfo = `
+  const returnedInfo = `\n\nReturns command exit code, stdout, stderr, and IDs of any background processes spawned.`;
 
-      The following information is returned:
-
-      Command: Executed command.
-      Directory: Directory where command was executed, or \`(root)\`.
-      Stdout: Output on stdout stream. Can be \`(empty)\` or partial on error and for any unwaited background processes.
-      Stderr: Output on stderr stream. Can be \`(empty)\` or partial on error and for any unwaited background processes.
-      Error: Error or \`(none)\` if no error was reported for the subprocess.
-      Exit Code: Exit code or \`(none)\` if terminated by signal.
-      Signal: Signal number or \`(none)\` if no signal was received.
-      Background PIDs: List of background processes started or \`(none)\`.
-      Process Group PGID: Process group started or \`(none)\``;
+  const commonWarnings = `
+CRITICAL CONSTRAINTS:
+1. **Blocking:** This tool waits for the command to finish. For long-running or indefinite processes (e.g., servers, watchers), you MUST run them in the background to prevent the CLI from hanging.
+2. **No Interaction:** Commands requiring user input (stdin) will fail or hang. Use non-interactive flags (e.g., \`npm init -y\`).
+`;
 
   if (os.platform() === 'win32') {
-    return `This tool executes a given shell command as \`cmd.exe /c <command>\`. Command can start background processes using \`start /b\`.${returnedInfo}`;
+    return `Executes a command using \`cmd.exe /c\`.${commonWarnings}3. **Backgrounding:** Use \`start /b <command>\` for background processes.${returnedInfo}`;
   } else {
-    return `This tool executes a given shell command as \`bash -c <command>\`. Command can start background processes using \`&\`. Command is executed as a subprocess that leads its own process group. Command process group can be terminated as \`kill -- -PGID\` or signaled as \`kill -s SIGNAL -- -PGID\`.${returnedInfo}`;
+    return `Executes a command using \`bash -c\`.${commonWarnings}3. **Backgrounding:** Append \`&\` to the command for background processes.${returnedInfo}`;
   }
 }
 
